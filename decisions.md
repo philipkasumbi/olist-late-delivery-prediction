@@ -1,7 +1,7 @@
 # Decision Log: Olist Late-Delivery Project
 
 Data: Olist Brazilian E-Commerce Public Dataset (Kaggle), CC BY-NC-SA 4.0. Credit: Olist.
-Table: `olist\\\_orders\\\_dataset.csv`, 99,441 rows, one row per `order\\\_id`.
+Table: `olist\\\\\\\\\\\\\\\_orders\\\\\\\\\\\\\\\_dataset.csv`, 99,441 rows, one row per `order\\\\\\\\\\\\\\\_id`.
 
 ## 1\. Problem scope (draft, to be completed)
 
@@ -34,7 +34,7 @@ Table: `olist\\\_orders\\\_dataset.csv`, 99,441 rows, one row per `order\\\_id`.
 
 ## 2\. Which orders get a label
 
-An order can only be labeled late or on time if both dates exist: the actual arrival (`order\\\_delivered\\\_customer\\\_date`) and the promise (`order\\\_estimated\\\_delivery\\\_date`).
+An order can only be labeled late or on time if both dates exist: the actual arrival (`order\\\\\\\\\\\\\\\_delivered\\\\\\\\\\\\\\\_customer\\\\\\\\\\\\\\\_date`) and the promise (`order\\\\\\\\\\\\\\\_estimated\\\\\\\\\\\\\\\_delivery\\\\\\\\\\\\\\\_date`).
 
 |Status|Count|Action|Reason type|Note|
 |-|-|-|-|-|
@@ -62,4 +62,10 @@ An order can only be labeled late or on time if both dates exist: the actual arr
 * Define "late" in code (timestamp vs date, ties)
 * Decide which features pass the purchase-time test
 * Geolocation join: zip prefixes need zero-padding to 5 characters
+
+
+
+## 5\. Features
+
+* \- promised\_days (estimated delivery date minus purchase date, in days): safe at purchase time. Weak on its own, with signal at the extremes (10.4% late under 10 days, 2.25% at 40+, against 6.8% overall). Kept as a candidate. Details: notebooks/01\_data\_exploration.ipynb.
 
