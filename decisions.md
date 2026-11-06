@@ -56,6 +56,7 @@ An order can only be labeled late or on time if both dates exist: the actual arr
 * **Review-timing rescue for shipped orders:** A survey created before the promised date suggests the package arrived, but this can only recover on-time labels. Late shipped orders stay invisible, so rescuing would inflate the on-time share.
 * **Delivery timestamps:** The documentation doesn't say how the arrival date was recorded (carrier scan, system update, or customer confirmation), so it may lag behind the real arrival.
 * **Scope of the data:** Orders from 2016 to 2018 on one platform, so results describe that period and may not generalize.
+* Rates in small groups (for example multi-seller orders) rest on very few late orders and are unreliable.
 
 ## 4\. Open items
 
@@ -68,4 +69,14 @@ An order can only be labeled late or on time if both dates exist: the actual arr
 ## 5\. Features
 
 * \- promised\_days (estimated delivery date minus purchase date, in days): safe at purchase time. Weak on its own, with signal at the extremes (10.4% late under 10 days, 2.25% at 40+, against 6.8% overall). Kept as a candidate. Details: notebooks/01\_data\_exploration.ipynb.
+
+
+
+|Feature|	Source|Safe at purchase?|	Late-rate finding|Status|
+|-|-|-|-|-|
+|promised\_days|derived (estimated delivery date minus purchase date)|Yes|10.4% late under 10 days, 2.25% at 40+ days, close to 6.8% in the middle|Weak candidate|
+|n\_items|order\_items|Yes|6.9% for 1 item, about 5% for 2+ items|Weak candidate|
+|n\_sellers|order\_items|Yes|About 1% for 2+ sellers, but only about 13 late orders|Weak candidate, may overlap with n\_items|
+
+
 
