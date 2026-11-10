@@ -83,6 +83,7 @@ An order can only be labeled late or on time if both dates exist: the actual arr
 |n\_sellers|order\_items|Yes|About 1% for 2+ sellers, but only about 13 late orders|Weak candidate, may overlap with n\_items|
 |total\_freight|order\_items|Yes|Rises steadily across five equal-sized bins, from about 4.4% (lowest fifth) to about 8.1% (highest fifth)|Candidate, strongest so far|
 |total\_price|order\_items|Yes|Rises more weakly, from about 5.9% (lowest fifth) to about 7.5% (highest fifth)|Weak candidate|
+|total\_weight\_g|products via order\_items|Yes|Late rate zigzags between 6.1% and 7.5% across five equal-sized weight bins (lift 0.90 to 1.11 against the 6.8% baseline). The heaviest fifth is highest at 7.5%, but the pattern is not steady.|Weak Candidate|
 
 
 
@@ -91,4 +92,14 @@ Correlations (Spearman): total\_price and total\_freight 0.47, total\_freight an
 
 
 Rule for every feature: check the late rate across its range against the 6.8% baseline, and check the group sizes before trusting a rate.
+
+
+
+
+
+Missing weights: 22 orders had a blank or zero (0 g) product weight, so their weight total was unreliable. Their total\_weight\_g was set to NaN and they carry weight\_missing = True.
+
+
+
+Correlations (Spearman): total\_weight\_g and total\_price 0.54, total\_weight\_g and total\_freight 0.49, total\_price and total\_freight 0.47. All moderate, so all kept for now. Weight and freight are only moderately related, which suggests freight also reflects something else, possibly distance (untested).
 
