@@ -1,7 +1,7 @@
 # Decision Log: Olist Late-Delivery Project
 
 Data: Olist Brazilian E-Commerce Public Dataset (Kaggle), CC BY-NC-SA 4.0. Credit: Olist.
-Table: `olist\\\\\\\\\\\\\\\_orders\\\\\\\\\\\\\\\_dataset.csv`, 99,441 rows, one row per `order\\\\\\\\\\\\\\\_id`.
+Table: `olist\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_orders\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_dataset.csv`, 99,441 rows, one row per `order\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_id`.
 
 ## 1\. Problem scope (draft, to be completed)
 
@@ -34,7 +34,7 @@ Table: `olist\\\\\\\\\\\\\\\_orders\\\\\\\\\\\\\\\_dataset.csv`, 99,441 rows, on
 
 ## 2\. Which orders get a label
 
-An order can only be labeled late or on time if both dates exist: the actual arrival (`order\\\\\\\\\\\\\\\_delivered\\\\\\\\\\\\\\\_customer\\\\\\\\\\\\\\\_date`) and the promise (`order\\\\\\\\\\\\\\\_estimated\\\\\\\\\\\\\\\_delivery\\\\\\\\\\\\\\\_date`).
+An order can only be labeled late or on time if both dates exist: the actual arrival (`order\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_delivered\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_customer\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_date`) and the promise (`order\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_estimated\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_delivery\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_date`).
 
 |Status|Count|Action|Reason type|Note|
 |-|-|-|-|-|
@@ -56,13 +56,17 @@ An order can only be labeled late or on time if both dates exist: the actual arr
 * **Review-timing rescue for shipped orders:** A survey created before the promised date suggests the package arrived, but this can only recover on-time labels. Late shipped orders stay invisible, so rescuing would inflate the on-time share.
 * **Delivery timestamps:** The documentation doesn't say how the arrival date was recorded (carrier scan, system update, or customer confirmation), so it may lag behind the real arrival.
 * **Scope of the data:** Orders from 2016 to 2018 on one platform, so results describe that period and may not generalize.
-* Rates in small groups (for example multi-seller orders) rest on very few late orders and are unreliable.
+* **Rates in small groups** (for example multi-seller orders) rest on very few late orders and are unreliable.
+* **Associations, not causes:** The late-rate patterns above are associations. Features such as freight and price may stand in for distance, weight or product type.
 
 ## 4\. Open items
 
-* Define "late" in code (timestamp vs date, ties)
-* Decide which features pass the purchase-time test
-* Geolocation join: zip prefixes need zero-padding to 5 characters
+* n\_sellers vs n\_items overlap test (parked)
+* Features from the products table (weight, dimensions, category) and distance via geolocation (zip prefixes need zero-padding to 5 characters)
+* Split strategy (time-based)
+* Baseline model, then real models
+
+
 
 
 
@@ -72,11 +76,19 @@ An order can only be labeled late or on time if both dates exist: the actual arr
 
 
 
-|Feature|	Source|Safe at purchase?|	Late-rate finding|Status|
+|Feature|Source|Safe at purchase?|Late-rate finding|Status|
 |-|-|-|-|-|
 |promised\_days|derived (estimated delivery date minus purchase date)|Yes|10.4% late under 10 days, 2.25% at 40+ days, close to 6.8% in the middle|Weak candidate|
 |n\_items|order\_items|Yes|6.9% for 1 item, about 5% for 2+ items|Weak candidate|
 |n\_sellers|order\_items|Yes|About 1% for 2+ sellers, but only about 13 late orders|Weak candidate, may overlap with n\_items|
+|total\_freight|order\_items|Yes|Rises steadily across five equal-sized bins, from about 4.4% (lowest fifth) to about 8.1% (highest fifth)|Candidate, strongest so far|
+|total\_price|order\_items|Yes|Rises more weakly, from about 5.9% (lowest fifth) to about 7.5% (highest fifth)|Weak candidate|
 
 
+
+Correlations (Spearman): total\_price and total\_freight 0.47, total\_freight and n\_items 0.38, total\_price and n\_items 0.18. No pair is close to a copy, so all are kept for now. Total\_freight mixes weight, package size and distance; the data cannot separate them yet.
+
+
+
+Rule for every feature: check the late rate across its range against the 6.8% baseline, and check the group sizes before trusting a rate.
 
