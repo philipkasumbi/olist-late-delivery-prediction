@@ -1,7 +1,7 @@
 # Decision Log: Olist Late-Delivery Project
 
 Data: Olist Brazilian E-Commerce Public Dataset (Kaggle), CC BY-NC-SA 4.0. Credit: Olist.
-Table: `olist\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_orders\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_dataset.csv`, 99,441 rows, one row per `order\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_id`.
+Table: `olist\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_orders\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_dataset.csv`, 99,441 rows, one row per `order\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_id`.
 
 ## 1\. Problem scope (draft, to be completed)
 
@@ -34,7 +34,7 @@ Table: `olist\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_orders\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 ## 2\. Which orders get a label
 
-An order can only be labeled late or on time if both dates exist: the actual arrival (`order\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_delivered\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_customer\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_date`) and the promise (`order\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_estimated\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_delivery\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_date`).
+An order can only be labeled late or on time if both dates exist: the actual arrival (`order\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_delivered\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_customer\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_date`) and the promise (`order\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_estimated\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_delivery\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_date`).
 
 |Status|Count|Action|Reason type|Note|
 |-|-|-|-|-|
@@ -58,6 +58,7 @@ An order can only be labeled late or on time if both dates exist: the actual arr
 * **Scope of the data:** Orders from 2016 to 2018 on one platform, so results describe that period and may not generalize.
 * **Rates in small groups** (for example multi-seller orders) rest on very few late orders and are unreliable.
 * **Associations, not causes:** The late-rate patterns above are associations. Features such as freight and price may stand in for distance, weight or product type.
+* \- Distance is a straight line between zip-code areas, not the road route, and is approximate for short trips.
 
 ## 4\. Open items
 
@@ -84,6 +85,7 @@ An order can only be labeled late or on time if both dates exist: the actual arr
 |total\_freight|order\_items|Yes|Rises steadily across five equal-sized bins, from about 4.4% (lowest fifth) to about 8.1% (highest fifth)|Candidate, strongest so far|
 |total\_price|order\_items|Yes|Rises more weakly, from about 5.9% (lowest fifth) to about 7.5% (highest fifth)|Weak candidate|
 |total\_weight\_g|products via order\_items|Yes|Late rate zigzags between 6.1% and 7.5% across five equal-sized weight bins (lift 0.90 to 1.11 against the 6.8% baseline). The heaviest fifth is highest at 7.5%, but the pattern is not steady.|Weak Candidate|
+|dist|derived (sellers, customers, geolocation)|Yes|Late rate climbs steadily across five equal-sized bins from 4.6%(under 118km) to 9.7%(over 877km); lift 0.67 to 1.43|Strongest Candidate so far|
 
 
 
@@ -102,4 +104,16 @@ Missing weights: 22 orders had a blank or zero (0 g) product weight, so their we
 
 
 Correlations (Spearman): total\_weight\_g and total\_price 0.54, total\_weight\_g and total\_freight 0.49, total\_price and total\_freight 0.47. All moderate, so all kept for now. Weight and freight are only moderately related, which suggests freight also reflects something else, possibly distance (untested).
+
+
+
+
+
+
+
+Distance: straight-line (haversine) km between seller and customer zip-code areas, taking the farthest seller per order. 480 orders have no distance because a zip was missing from the geolocation table or had coordinates outside Brazil; left as NaN. Associated with lateness, not proven causal.
+
+
+
+Correlations (Spearman): dist and total\_freight 0.59, dist and total\_price 0.11, dist and total\_weight\_g 0.03. Distance carries information that weight and price do not, and partly overlaps with freight.
 
